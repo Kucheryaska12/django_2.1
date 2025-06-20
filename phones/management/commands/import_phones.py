@@ -1,7 +1,7 @@
 import csv
-
+from django.db.utils import IntegrityError
 from django.core.management.base import BaseCommand
-from work_with_database.phones.models import Phone
+from phones.models import Phone
 
 
 class Command(BaseCommand):
@@ -11,11 +11,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with open('phones.csv', 'r') as file:
             phones = list(csv.DictReader(file, delimiter=';'))
+            print(phones)
 
         for phone in phones:
-            Phone.objects.create(name=phone['name'],
+            try:
+                Phone.objects.create(name=phone['name'],
                                  price=phone['price'],
                                  image=phone['image'],
                                  release_date=phone['release_date'],
                                  lte_exists=phone['lte_exists']
                                  )
+            except IntegrityError:
+                pass
